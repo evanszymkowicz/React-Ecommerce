@@ -16,19 +16,12 @@ compress.unused = true;
 module.exports = env => {
 	return {
 		entry: {
-			FirstComp: './assets/js/FirstComp.js',
-			SApp: './assets/js/components/svelte/SvelteApp.js',
-			main: './assets/js/main.js'
+			CartComponents: './resources/assets/js/CartComponents.js',
+			ProductAddToCart: './resources/assets/js/components/ProductAddToCart.js'
 		},
 		output: {
 			path: path.resolve(__dirname, 'public/js/dist'),
 			filename: '[name].js'
-		},
-		resolve: {
-			// see below for an explanation // '[name].[chunkhash].js' put this if you want to get hashed files to cache bust
-			alias: { svelte: path.resolve('node_modules', 'svelte') },
-			extensions: ['.mjs', '.js', '.svelte'],
-			mainFields: ['svelte', 'browser', 'module', 'main']
 		},
 		module: {
 			rules: [
@@ -37,7 +30,6 @@ module.exports = env => {
 					exclude: /node_modules/,
 					use: ['babel-loader', 'prettier-loader']
 				},
-				{ test: /\.svelte$/, exclude: /node_modules/, use: 'svelte-loader' },
 				{
 					test: /\.scss$/,
 					use: [
@@ -51,7 +43,9 @@ module.exports = env => {
 			]
 		},
 		plugins: [
+			new CleanWebpackPlugin('public/js/dist', {}),
 			new MiniCssExtractPlugin({
+				// '[name].[chunkhash].js' put this if you want to get hashed files to cache bust
 				filename: 'styles.css' // 'style.[contenthash].css' put this if you want to get hashed files to cache bust
 			}), // new HtmlWebpackPlugin({
 			// 	inject: false,
@@ -63,7 +57,15 @@ module.exports = env => {
 			new WebpackMd5Hash()
 		],
 		optimization: {
-			splitChunks: { chunks: 'all', minSize: 0 },
+			splitChunks: {
+				cacheGroups: {
+					vendor: {
+						test: /[\\/]node_modules[\\/](react|react-dom|axios)[\\/]/,
+						name: 'vendors',
+						chunks: 'all'
+					}
+				}
+			},
 			minimize: true,
 			minimizer: [
 				new UglifyJsPlugin({
