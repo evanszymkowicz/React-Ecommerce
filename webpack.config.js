@@ -17,7 +17,7 @@ module.exports = env => {
 	return {
 		entry: {
 			CartComponents: './resources/assets/js/CartComponents.js',
-			ProductAddToCart: './resources/assets/js/components/ProductAddToCart.js'
+			AddProductToCart: './resources/assets/js/components/AddProductToCart.js'
 		},
 		output: {
 			path: path.resolve(__dirname, 'public/js/dist'),

@@ -12,58 +12,68 @@ body {
   font-family: 'Roboto', sans-serif;
   background: #E3E8EC;
 }
-.container{
+
+.container {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding:0 20px;
+  padding: 0 20px;
 }
 
-header{
+header {
   background: #E3E8EC;
-  position:fixed;
+  position: fixed;
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
   padding: 20px;
   z-index: 10;
-  .logo{
+
+  .logo {
     font-weight: 700;
     font-size: 2rem;
     text-transform: uppercase;
-    a{
+
+    a {
       color: #484c4f;
       text-decoration: none;
-      transition:color .2s ease-in-out;
-      &:hover{
+      transition: color 0.2s ease-in-out;
+
+      &:hover {
         color: red;
       }
     }
   }
-  .menu{
+
+  .menu {
     font-size: 1rem;
     text-transform: uppercase;
     padding: 20px 0;
-    #CartBtnRoot{
+
+    #CartBtnRoot {
       display: inline-block;
     }
-    a{
+
+    a {
       color: #484c4f;
       padding-right: 15px;
       text-decoration: none;
-      transition:color .2s ease-in-out;
-      &:hover{
+      transition: color 0.2s ease-in-out;
+
+      &:hover {
         color: red;
       }
-      &.cart-link{
+
+      &.cart-link {
         background: #484c4f;
         color: white;
         padding: 10px 20px;
         display: inline-block;
         position: relative;
         border-radius: 20px;
-        div{
+
+        div {
           position: absolute;
           top: -10px;
           right: -10px;
@@ -79,20 +89,20 @@ header{
     }
   }
 }
-.content-area{
+
+.content-area {
   background: #E3E8EC;
   filter: blur(0);
-  transition: filter .4s ease-in-out;
-  &.cart-popup-active{
+  transition: filter 0.4s ease-in-out;
+
+  &.cart-popup-active {
     filter: blur(20px);
   }
-  &.home-page{
 
-  }
+  &.home-page {}
 }
 
-
-#cart-popup{
+#cart-popup {
   background: #F2F6F7;
   width: 100%;
   position: fixed;
@@ -101,15 +111,18 @@ header{
   display: grid;
   grid-template-columns: 5% 50% 1fr 1fr 1fr;
   transform: translate3d(0,500px,0);
-  transition: transform .4s ease-in-out;
-  &.active{
+  transition: transform 0.4s ease-in-out;
+
+  &.active {
     transform: translate3d(0,0,0);
   }
-  .cart-title{
+
+  .cart-title {
     width: 100px;
     max-width: 100px;
     position: relative;
-    .title{
+
+    .title {
       position: absolute;
       top: 20px;
       left: -62px;
@@ -119,16 +132,18 @@ header{
       width: 200px;
     }
   }
-  .cart-items{
+
+  .cart-items {
     overflow-x: scroll;
     overflow-y: hidden;
     white-space: nowrap;
-    .item-container{
+
+    .item-container {
       width: 200px;
       display: inline-block;
-      
     }
-    .item{
+
+    .item {
       width: 200px;
       display: flex;
       justify-content: center;
@@ -136,13 +151,15 @@ header{
       flex-direction: column;
       position: relative;
       padding: 70px 20px;
-      img{
+
+      img {
         position: absolute;
         left: -41px;
         width: 100%;
         transform: rotate(90deg);
       }
-      .delete-btn{
+
+      .delete-btn {
         background: white;
         width: 100%;
         display: flex;
@@ -150,14 +167,15 @@ header{
         padding: 10px;
         border-radius: 30px;
         cursor: pointer;
-       
-        &:hover{
-          .circle{
+
+        &:hover {
+          .circle {
             background: red;
           }
         }
       }
-      .circle{
+
+      .circle {
         background: #F2F6F7;
         width: 50px;
         height: 50px;
@@ -166,15 +184,17 @@ header{
         align-items: center;
         border-radius: 50%;
         color: white;
-         transition: background .4s ease-in-out;
+        transition: background 0.4s ease-in-out;
       }
     }
   }
-  .product-total, .price-total{
+
+  .price-total,
+  .product-total {
     display: flex;
     align-items: center;
-    
-    .inside-container{
+
+    .inside-container {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -182,7 +202,8 @@ header{
       border-left: 3px solid #b6bfc6;
       width: 100%;
     }
-    .title{
+
+    .title {
       color: #b6bfc6;
       background: white;
       padding: 5px 20px;
@@ -190,13 +211,15 @@ header{
       display: inline-block;
       margin-bottom: 20px;
     }
-    .number{
+
+    .number {
       color: #b6bfc6;
       font-size: 2rem;
       font-weight: 700;
     }
   }
-  .checkout{
+
+  .checkout {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -206,49 +229,57 @@ header{
     text-transform: uppercase;
     flex-direction: column;
     cursor: pointer;
-    &:hover{
-      .ti-shopping-cart{
+
+    &:hover {
+      .ti-shopping-cart {
         color: red;
       }
     }
-    .title{
+
+    .title {
       margin-bottom: 1.2rem;
     }
   }
 }
 
-.box-container{
+.box-container {
   background: white;
   padding: 80px 20px;
 }
-form{
-  .error-message{
+
+form {
+  .error-message {
     position: relative;
     top: -9px;
     color: red;
   }
-  input.error{
+
+  input.error {
     border: 1px solid red !important;
   }
-  input[type="password"], input[type="email"], input[type="text"]{
-        width: 100%;
-        margin: 0 0 1rem;
-        font-size: 1rem;
-        padding: 10px;
-        border: 1px solid #6c6c6c;
-      }
-  button{
-        border: none;
-        margin: 0 0 1rem;
-        font-size: 1rem;
-        padding: 10px;
-        background-color: rgb(27, 108, 206);
-        color: white;
-        cursor: pointer;
-      }
+
+  input[type="password"],
+  input[type="email"],
+  input[type="text"] {
+    width: 100%;
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    padding: 10px;
+    border: 1px solid #6c6c6c;
+  }
+
+  button {
+    border: none;
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    padding: 10px;
+    background-color: rgb(27, 108, 206);
+    color: white;
+    cursor: pointer;
+  }
 }
 
-#alert-box{
+#alert-box {
   display: none;
   position: fixed;
   top: 0;
@@ -257,23 +288,28 @@ form{
   padding: 20px;
   width: 100%;
   cursor: pointer;
-  &.active{
+
+  &.active {
     display: block;
   }
-  .title{
+
+  .title {
     font-weight: 700;
     font-size: 1.5rem;
     margin-bottom: 2rem;
   }
-  &.notification{
+
+  &.notification {
     background: yellow;
     color: black;
   }
-  &.success{
+
+  &.success {
     background: green;
     color: white;
   }
-  &.error{
+
+  &.error {
     background: red;
     color: white;
   }
