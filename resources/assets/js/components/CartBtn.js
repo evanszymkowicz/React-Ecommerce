@@ -6,7 +6,7 @@ class CartBtn extends Component {
 	constructor() {
 		super();
 		this.state = {
-			name: 'Joe'
+			name: 'Evan'
 		};
 	}
 	clickedBtn = () => {};
