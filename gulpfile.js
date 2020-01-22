@@ -4,85 +4,221 @@ const autoprefixer = require('gulp-autoprefixer');
 const browserSync = require('browser-sync');
 const reload = browserSync.reload;
 var exec = require('child_process').exec;
+const pug = require('gulp-pug');
+const imagemin = require('gulp-imagemin');
+const prettyUrl = require('gulp-pretty-url');
+var del = require('del');
+const gulpEdge = require('gulp-edgejs');
 
-gulp.task('default', ['webpack', 'styles', 'browser-sync'], () => {
-	gulp.watch('./resources/assets/scss/**/*', ['styles']);
-	gulp.watch('./resources/assets/js/**/*', ['webpack']);
-	gulp
-		.watch([
-			'./public/**/*',
-			'./public/*',
-			'./resources/views/**/*',
-			'!public/js/**/.#*js',
-			'!public/css/**/.#*css'
-		])
-		.on('change', reload);
-});
+// scss compiler:
+gulp.task(
+	'styles',
+	gulp.series(() => {
+		return gulp
+			.src('resources/assets/scss/**/*.scss')
+			.pipe(
+				sass({
+					outputStyle: 'compressed'
+				}).on('error', sass.logError)
+			)
+			.pipe(
+				autoprefixer({
+					browsers: ['last 2 versions']
+				})
+			)
+			.pipe(gulp.dest('./public/css'))
+			.pipe(browserSync.stream());
+	})
+);
 
-gulp.task('watch-proxy', ['webpack', 'styles', 'browser-sync-proxy'], () => {
-	gulp.watch('./resources/assets/scss/**/*', ['styles']);
-	gulp.watch('./resources/assets/js/**/*', ['webpack']);
-	gulp
-		.watch([
-			'./public/**/*',
-			'./public/*',
-			'./resources/views/**/*',
-			'!public/js/**/.#*js',
-			'!public/css/**/.#*css'
-		])
-		.on('change', reload);
-});
+// webpack set to dev mode
+gulp.task(
+	'webpack:dev',
+	gulp.series(cb => {
+		return exec('npm run dev:webpack', function(err, stdout, stderr) {
+			console.log(stdout);
+			console.log(stderr);
+			cb(err);
+		});
+	})
+);
 
-gulp.task('styles', () => {
-	gulp
-		.src('resources/assets/scss/**/*.scss')
-		.pipe(
-			sass({
-				outputStyle: 'compressed'
-			}).on('error', sass.logError)
-		)
-		.pipe(
-			autoprefixer({
-				browsers: ['last 2 versions']
-			})
-		)
-		.pipe(gulp.dest('./public/css'))
-		.pipe(browserSync.stream());
-});
+gulp.task(
+	'webpack:prod',
+	gulp.series(cb => {
+		return exec('npm run build:webpack', function(err, stdout, stderr) {
+			console.log(stdout);
+			console.log(stderr);
+			cb(err);
+		});
+	})
+);
 
-gulp.task('browser-sync', function() {
-	browserSync.init({
-		server: './public',
-		notify: false,
-		open: false //change this to true if you want the broser to open automatically
-	});
-});
+// browser-sync to  live reload
+// set open:false to open:true for browser live load
+gulp.task(
+	'browser-sync',
+	gulp.series(function() {
+		browserSync.init({
+			server: './public',
+			notify: false,
+			open: false
+		});
+	})
+);
 
-gulp.task('browser-sync-proxy', function() {
-	// THIS IS FOR SITUATIONS WHEN YOU HAVE ANOTHER SERVER RUNNING
-	browserSync.init({
-		proxy: {
-			target: 'http://localhost:3333/', // can be [virtual host, sub-directory, localhost with port]
-			ws: true // enables websockets
+// browser-sync task for all types of backends
+// gulp.series enables when there are multiple servers
+// ws: true enables websockets (chat functionality)
+gulp.task(
+	'browser-sync-proxy',
+	gulp.series(function() {
+		browserSync.init({
+			proxy: {
+				target: 'http://localhost:3333/',
+				ws: true
+			}
+		});
+	})
+);
+
+gulp.task(
+	'imagemin',
+	gulp.series(function minizingImages() {
+		return gulp
+			.src('resources/assets/img/**/*')
+			.pipe(
+				imagemin([
+					imagemin.gifsicle({ interlaced: true }),
+					imagemin.jpegtran({ progressive: true }),
+					imagemin.optipng({ optimizationLevel: 5 }),
+					imagemin.svgo({
+						plugins: [{ removeViewBox: true }, { cleanupIDs: false }]
+					})
+				])
+			)
+			.pipe(gulp.dest('./public/img'));
+	})
+);
+
+// default gulp task-runner
+gulp.task(
+	'default',
+	gulp.parallel([
+		gulp.series([
+			'webpack:dev',
+			'styles',
+			function runningWatch() {
+				gulp.watch('./resources/assets/scss/**/*', gulp.parallel('styles'));
+				gulp.watch('./resources/assets/js/**/*', gulp.parallel('webpack:dev'));
+				gulp.watch(['./public/**/*', './public/*']).on('change', reload);
+			}
+		]),
+		gulp.series(['browser-sync'])
+	])
+);
+
+
+// for PHP/GO backend env
+gulp.task(
+	'watch-proxy',
+	gulp.parallel([
+		gulp.series([
+			'webpack:dev',
+			'styles',
+			function runningWatch() {
+				gulp.watch('./resources/assets/scss/**/*', gulp.parallel('styles'));
+				gulp.watch('./resources/assets/js/**/*', gulp.parallel('webpack:dev'));
+				gulp
+					.watch(['./public/**/*', './public/*', './resources/views/*'])
+					.on('change', reload);
+			}
+		]),
+		gulp.series(['browser-sync-proxy'])
+	])
+);
+// Production build
+gulp.task('build', gulp.series([gulp.parallel(['styles', 'webpack:prod'])]));
+
+/*
+|--------------------------------------------------------------------------
+| Static Site Generator
+|--------------------------------------------------------------------------
+|
+| Run These commands below for static site generator
+|	optional this is if you want to create a static website
+|
+*/
+
+// Edge or PUG Template Engines
+gulp.task(
+	'views',
+	gulp.series(
+		function buildGULPHTML() {
+			return gulp
+				.src([
+					'resources/views/**/*.pug',
+					'!resources/views/{layouts,layouts/**}',
+					'!resources/views/{includes,includes/**}'
+				])
+				.pipe(pug({ pretty: true }))
+				.pipe(gulp.dest('./temp'));
 		},
-		notify: false,
-		open: false //change this to true if you want the broser to open automatically
-		// serveStatic: ['.', './public']
-	});
-});
+		/* =================== */
+		// function buildEDGEHTML() {
+		// 	return gulp
+		// 		.src([
+		// 			'resources/views/**/*.edge',
+		// 			'!resources/views/{layouts,layouts/**}',
+		// 			'!resources/views/{includes,includes/**}'
+		// 		])
+		// 		.pipe(gulpEdge())
+		// 		.pipe(gulp.dest('./temp'));
+		// },
+		function cleanUrl() {
+			return gulp
+				.src('temp/**/*.html')
+				.pipe(prettyUrl())
+				.pipe(gulp.dest('public'));
+		}
+	)
+);
+// delete temp files
+gulp.task(
+	'cleanTemp',
+	gulp.series(() => {
+		return del([
+			'./temp'
+		]);
+	})
+);
 
-gulp.task('webpack', cb => {
-	exec('npm run dev:webpack', function(err, stdout, stderr) {
-		console.log(stdout);
-		console.log(stderr);
-		cb(err);
-	});
-});
+// Static site generator live reload
+gulp.task(
+	'static-dev',
+	gulp.parallel([
+		gulp.series([
+			'views',
+			'webpack:dev',
+			'styles',
+			'cleanTemp',
+			function runningWatch() {
+				gulp.watch('./resources/views/**/*', gulp.series('views'));
+				gulp.watch('./resources/views/**/*', gulp.series('cleanTemp'));
+				gulp.watch('./resources/assets/scss/**/*', gulp.parallel('styles'));
+				gulp.watch('./resources/assets/js/**/*', gulp.parallel('webpack:dev'));
+				gulp.watch(['./public/**/*', './public/*']).on('change', reload);
+			}
+		]),
+		gulp.series(['browser-sync'])
+	])
+);
 
-gulp.task('build', ['styles'], cb => {
-	exec('npm run build:webpack', function(err, stdout, stderr) {
-		console.log(stdout);
-		console.log(stderr);
-		cb(err);
-	});
-});
+// static site for live reload
+gulp.task(
+	'static-build',
+	gulp.series([
+		gulp.series(['views', 'cleanTemp']),
+		gulp.parallel(['styles', 'webpack:prod'])
+	])
+);
