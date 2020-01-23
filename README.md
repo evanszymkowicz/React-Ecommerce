@@ -4,3 +4,8 @@
 
 -Updating products from the client
 -User auth
+
+## Planned:
+
+-Create John Doe account
+-email/facebook user registration
